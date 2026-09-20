@@ -1712,9 +1712,14 @@ function renderRouterList() {
       </label>`;
     }).join('');
     return `<div style="border:1px solid var(--mac-border);border-radius:8px;padding:12px;background:rgba(255,255,255,0.4);">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;gap:8px;flex-wrap:wrap;">
         <div style="font-weight:600;font-size:14px;">🔀 ${name} <span style="font-size:11px;color:var(--text-secondary);font-weight:400;">(客户端 model 字段填这个名称即可命中)</span></div>
-        <button class="btn" style="padding:3px 8px;font-size:11px;color:var(--danger);" onclick="removeRouterGroup('${name}')">删除</button>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;">
+          <button class="btn" style="padding:3px 8px;font-size:11px;" onclick="selectAllRouter('${name}', true)">全选</button>
+          <button class="btn" style="padding:3px 8px;font-size:11px;" onclick="invertRouter('${name}')">反选</button>
+          <button class="btn" style="padding:3px 8px;font-size:11px;" onclick="selectAllRouter('${name}', false)">清空</button>
+          <button class="btn" style="padding:3px 8px;font-size:11px;color:var(--danger);" onclick="removeRouterGroup('${name}')">删除</button>
+        </div>
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;max-height:220px;overflow-y:auto;">${boxes}</div>
     </div>`;
@@ -1734,6 +1739,22 @@ function removeRouterGroup(name) {
   if (!confirm('确定删除路由组「' + name + '」？')) return;
   delete routersData[name];
   renderRouterList();
+}
+
+/* 批量勾选：selectAll=true 全选，false 清空 */
+function selectAllRouter(name, selectAll) {
+  const boxes = document.querySelectorAll('.router-model-cb[data-router="' + CSS.escape(name) + '"]');
+  boxes.forEach(cb => { cb.checked = !!selectAll; });
+  const count = Array.from(boxes).filter(cb => cb.checked).length;
+  showToast('「' + name + '」' + (selectAll ? '已全选' : '已清空') + '（' + count + '）', 'ok');
+}
+
+/* 反选 */
+function invertRouter(name) {
+  const boxes = document.querySelectorAll('.router-model-cb[data-router="' + CSS.escape(name) + '"]');
+  boxes.forEach(cb => { cb.checked = !cb.checked; });
+  const count = Array.from(boxes).filter(cb => cb.checked).length;
+  showToast('「' + name + '」已反选（' + count + '）', 'ok');
 }
 
 async function saveRouters() {
