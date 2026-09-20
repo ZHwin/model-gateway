@@ -831,6 +831,19 @@ input:checked + .slider:before { transform: translateX(14px); }
 </div>
 
 <script>
+/* ============ 修复弹窗定位：把 modal 提升为 body 直接子元素 ============
+ * 原因：所有 modal 嵌套在 .mac-window 内，而 .mac-window 常驻 backdrop-filter
+ * （及进场动画的 transform），按 CSS 规范这些属性会为后代创建新的包含块，
+ * 导致 .modal-overlay 的 position:fixed 不再参照视口，而是参照 .mac-window，
+ * 弹窗因此跑到文档顶部、需滚动才能看到。提升到 body 后 fixed 恢复视口参照，
+ * flex 垂直居中随之正确。各 modal 用 ID 引用，移动后 onclick/getElementById 不受影响。
+ */
+(function () {
+  document.querySelectorAll('.modal-overlay').forEach(function (m) {
+    document.body.appendChild(m);
+  });
+})();
+
 /* ============ 鉴权与 fetch 封装 ============ */
 const TOKEN_KEY = 'gateway_admin_token';
 function getToken() { return "{{ local_api_key }}"; }
